@@ -170,8 +170,11 @@ def quick_feedback(message):
     if create_audio_file(message, "feedback.mp3"):
         process = play_audio_file("feedback.mp3")
         if process:
-            # Don't wait for completion, just start it
-            threading.Thread(target=lambda: (process.wait(), os.remove("feedback.mp3")), daemon=True).start()
+            def wait_and_delete():
+                process.wait()
+                if os.path.exists("feedback.mp3"):
+                    os.remove("feedback.mp3")
+            threading.Thread(target=wait_and_delete, daemon=True).start()
 
 # ========== File Management ==========
 def delete_existing_files(directory):
